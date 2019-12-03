@@ -41,8 +41,6 @@ luban install --name=bullet-spring-java-maven
 
 # generate project
 luban fast-create --name=bullet-spring-java-maven --project=com.foo.example
-
-# run project
 cd example
 
 # make shell executable
