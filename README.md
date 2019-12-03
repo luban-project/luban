@@ -36,10 +36,21 @@ cargo luban --version               # 3. check version:
 
 # usage example
 ```shell script
-luban install --name=bullet-spring-java-maven # for the first time
+# for the first time, install project template
+luban install --name=bullet-spring-java-maven 
+
+# generate project
 luban fast-create --name=bullet-spring-java-maven --project=com.foo.example
+
+# run project
 cd example
+
+# make shell executable
+chmod 755 gen/gen.sh
 chmod 755 run.sh
+
+# generate code and run
+./gen/gen.sh 
 ./run.sh
 ```
 
