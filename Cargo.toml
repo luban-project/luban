@@ -1,11 +1,11 @@
 [package]
-name = "cargo-bullet"
+name = "cargo-luban"
 version = "0.2.6"
 authors = ["wang wei <soulww@163.com>"]
 edition = "2018"
 
-description = "This is a configurable project generator"
-homepage = "https://github.com/thegenius/bullet"
+description = "This is a luban project generator"
+homepage = "https://github.com/luban-project/luban"
 keywords = ["generator"]
 categories = ["command-line-utilities"]
 license = "Apache-2.0/MIT"
