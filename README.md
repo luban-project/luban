@@ -1,16 +1,25 @@
 
-[![crates.io](https://img.shields.io/badge/crates.io-0.2.0-green.svg)](https://crates.io/crates/cargo-bullet)
+[![crates.io](https://img.shields.io/badge/crates.io-0.2.7-green.svg)](https://crates.io/crates/cargo-bullet)
 [![LICENSE](https://img.shields.io/badge/LICENSE-apache-green.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://www.travis-ci.org/thegenius/bullet.svg?branch=master)](https://www.travis-ci.org/thegenius/bullet)
 
-# bullet
-bullet is a project boilerplate generator
+# luban
+luban is a generic project generator
 
 # install
-## linux/unix/mac
-1. install rust: curl https://sh.rustup.rs -sSf | sh
-2. install bullet: cargo install cargo-bullet
-3. check version: cargo bullet --version
+## mac
+```shell script
+brew install luban-project/luban/luban
+luban --version
+```
+
+## linux/unix
+```shell script
+curl https://sh.rustup.rs -sSf | sh # 1. install rust: 
+cargo install cargo-luban           # 2. install bullet: 
+cargo luban --version               # 3. check version: 
+```
+
 
 ### Known Problems
 |OS|Problem|Solve|
@@ -19,137 +28,50 @@ bullet is a project boilerplate generator
 |ubuntu|linker `cc` not found|sudo apt-get install build-essential|
 |ubuntu|Could not find directory of OpenSSL|sudo apt install libssl-dev & sudo apt instll pkg-config|  
 
-
 ## windows
 1. install rust: following [rust-lang](https://www.rust-lang.org/tools/install)
 2. install bullet: cargo install cargo-bullet
 3. check version: cargo bullet --version
 * please install visual studio to get the msvc compiler
 
-## install from source
-1. install rust
-2. git clone https://github.com/thegenius/bullet.git
-3. cd bullet
-4. cargo build --release
-4. ./target/release/bullet.exe --version
-
-# usage
-cargo bullet --config=\<config_file\> --template=\<template_dir\> --out=\<out_dir\>
-
-## config file example: build.toml
-```toml
-group = "example"
-project = "test"
-[ext]
-my_content = "This is my content"
+# usage example
+```shell script
+luban install --name=bullet-spring-java-maven # for the first time
+luban fast-create --name=bullet-spring-java-maven --project=com.foo.example
+cd example
+chmod 755 run.sh
+./run.sh
 ```
 
-## project structure example: templates/structure/structure.toml
+# bullet-spring-java-maven模板说明
+
+## 基本项目结构
 ```text
-project_structure = [
-    {item_path="{{ context.group }}.{{context.project }}",  item_file = "hello.txt", item_tmpl="hello.txt.tmpl", item_type="static"}
-]
+root --|
+    api --|  #对外提供的二方包，只能包含接口和POJO类，不能包含实现
+             #后续dubbo接口/grpc接口也需要定义在这里
+    app --|  #主体应用程序
+        biz --| #业务逻辑层，应该只包含逻辑结构的组织
+        clg --| #核心逻辑层，应该只包含核心的领域模型和逻辑，要求纯函数
+        dal --| #数据操作层，mysql/redis/hbase/file等
+        ext --| #外部防腐层，外部调用，mq接入等
+        fun --| #通用方法层，纯函数
+    gen --|  #自动代码生成的插件和配置
 ```
 
-## project template example: templates/template/hello.txt.tmpl
-```text
-hello {{ context.project }} {{ context.ext.my_content }}
+## 数据库代码生成
+数据库相关的sql脚本在app/src/main/resouces/db/migration目录下
+代码生成命令如下：
+```shell script
+chmod 755 gen/gen.sh
+./gen/gen.sh
 ```
 
-## generate the project
-```text
-cargo bullet -c build.toml -t templates -o output
+## 项目运行
+```shell script
+chmod 755 run.sh
+./run.sh
 ```
-
-# idea
-when we develop a project, we always write many boilerplate code, config and etc.
-so to save your life time.
-1. create a project template.
-2. config the project with yaml or json or toml.
-3. generate the project
-
-# For Template Developer
-## Template Structure
-```text
-root |-- structure/
-     |-- |-- structure.toml 
-     |-- template/
-     |-- |-- hello.tmpl
-     |-- |-- world.tmpl
-     |-- bullet.toml
-```
-
-## Structrue File
-1. project_structure is the root element
-2. children element must have 4 fields: item_path, item_file, item_tmpl, item_type
-3. item_path is the file path that you want to generate
-4. item_file is the file name that you want to generate
-5. item_tmpl is the template file located in template dir
-6. item_type now support "static" and "dynamic"
-### Static Structure
-you can use context as the reference to bullet.toml properties  
-for example:
-``` text
-item_path = "{{context.project}}.hello"
-```
-### Dynamic Structure
-you can use context as the reference to bullet.toml properties,   
-and you can use resource as the reference to bullet.toml's resource item
-for example:
-``` text
-item_path = "{{context.project}}.hello" item_file = "{{resource.name_info.default_name}}"
-```
-
-## For All User
-### bullet.toml example
-```text
-group = "example"
-project = "test"
-
-[ext]
-content = "ext content"
-
-[resources.basic_info]
-name_info = {default_name = "hello"}
-type_info = {}
-ext = {}
-fields = [
-    {name_info = {default_name = "id", camel_name="id"},  type_info= {java="Long"}},
-]
-```
-### bullet.toml root element
-|property|must|type|
-|----|----|----|
-|group|yes|string|
-|project|yes|string|
-|ext|no|map\<string, string\>|
-|resources|no|resource element|
-
-### resource element
-|property|must|type|
-|----|----|----|
-|name_info|yes|name element|
-|type_info|yes|map\<string, string\>|
-|ext|no|map\<string, string\>|
-|fields|yes|field element|
-
-### field element
-|property|must|type|
-|----|----|----|
-|name_info|yes|name element|
-|type_info|yes|map\<string, string\>|
-|ext|no|map\<string, string\>|
-
-### name element
-|property|must|type|
-|----|----|----|
-|default_name|yes|string|
-|snake_name|no|string|
-|hyphen_name|no|string|
-|upper_camel_name|no|string|
-|lower_camel_name|no|string|
-
-
 
 
 # Supported Templates
