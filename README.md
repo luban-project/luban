@@ -16,7 +16,7 @@ luban --version
 ## linux/unix
 ```shell script
 curl https://sh.rustup.rs -sSf | sh # 1. install rust: 
-cargo install cargo-luban           # 2. install bullet: 
+cargo install cargo-luban           # 2. install luban: 
 cargo luban --version               # 3. check version: 
 ```
 
