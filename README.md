@@ -8,11 +8,11 @@ luban is a generic project generator
 
 # install
 ## mac
-```shell script
+```text
 brew install luban-project/luban/luban
-luban --version
+luban --version  
 ```
-
+   
 ## linux/unix
 ```shell script
 curl https://sh.rustup.rs -sSf | sh # 1. install rust: 
