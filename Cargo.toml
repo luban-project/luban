@@ -1,6 +1,6 @@
 [package]
 name = "cargo-luban"
-version = "0.2.8"
+version = "0.2.9"
 authors = ["wang wei <soulww@163.com>"]
 edition = "2018"
 
