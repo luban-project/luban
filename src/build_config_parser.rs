@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use std::fs;
+use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct ResourceNameItem {
@@ -29,6 +29,7 @@ pub struct ResourceItem {
 pub struct BuildConfig {
     pub group: String,
     pub project: String,
+    pub app_name: Option<String>,
     pub ext: Option<HashMap<String, String>>,
     pub resources: Option<HashMap<String, ResourceItem>>,
 }
@@ -44,10 +45,11 @@ pub fn parse_build_config_file(config_file_path: &String) -> BuildConfig {
     };
 }
 
-pub fn create_build_config(group: &str, project: &str) -> BuildConfig {
+pub fn create_build_config(group: &str, project: &str, app_name: Option<String>) -> BuildConfig {
     return BuildConfig {
         group: group.to_string(),
         project: project.to_string(),
+        app_name,
         ext: None,
         resources: None
     }

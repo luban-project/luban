@@ -11,20 +11,24 @@ extern crate git2;
 extern crate serde_yaml;
 extern crate toml;
 
+mod sql;
 mod build_config_parser;
 mod command_args_parser;
 mod structure_builder;
 mod template_installer;
 mod template_renderer;
-mod tera_builder;
-mod photo;
+mod file_utils;
+//mod fun;
+mod ext;
+mod plugin;
 
-use command_args_parser::{BuildArg, CreateArg, InstallArg, FastCreateArg};
+use command_args_parser::ParsedArgs;
+use sql::sql_parser;
 
 fn main() {
-    let command_args: (Option<InstallArg>, Option<BuildArg>, Option<CreateArg>, Option<FastCreateArg>) =
+    let command_args =
         command_args_parser::parse_command_line_args();
-    match command_args.0 {
+    match command_args.install_arg {
         None => (),
         Some(install_arg) => {
             template_installer::install_template_from_git(
@@ -35,21 +39,21 @@ fn main() {
         }
     };
 
-    match command_args.1 {
+    match command_args.build_arg {
         None => (),
         Some(build_arg) => {
             template_renderer::render(build_arg);
         }
     }
 
-    match command_args.2 {
+    match command_args.create_arg {
         None => (),
         Some(create_arg) => {
             template_installer::create_build_config_from_installed(create_arg.name);
         }
     }
 
-    match command_args.3 {
+    match command_args.fast_create_arg {
         None => (),
         Some(fast_create_arg) => {
             match template_installer::fetch_template_path(&fast_create_arg.name) {

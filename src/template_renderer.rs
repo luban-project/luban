@@ -2,12 +2,14 @@ use super::build_config_parser;
 use super::build_config_parser::BuildConfig;
 use super::command_args_parser::BuildArg;
 use super::structure_builder;
+use super::structure_builder::ProjectStructure;
 use super::structure_builder::ProjectStructureItem;
 use super::template_installer;
-use super::tera_builder;
 use std::fs;
 use std::path::Path;
 use tera::{Context, Tera};
+use std::borrow::Borrow;
+use crate::ext::tera_util::build_tera;
 
 // fn gen_target_path(entry: &walkdir::DirEntry, old_prefix: &str, new_prefix: &str) -> PathBuf {
 //     let strip_path = entry.path().strip_prefix(old_prefix).unwrap();
@@ -242,10 +244,10 @@ fn copy_template_file(item: &ProjectStructureItem) {
 }
 
 fn render_structure_item(tera: &Tera, context: &Context, asset_dir: &str, out: &str, item: &ProjectStructureItem) {
-    if !(&item.item_tmpl.ends_with(".tmpl")) {
+    if !(&item.item_tmpl.as_ref().unwrap().ends_with(".tmpl")) {
         let origin_file_path = format!("{}/{}",
                                        asset_dir,
-            item.item_tmpl
+            item.item_tmpl.as_ref().unwrap()
         );
         let target_dir_path = format!("{}/{}",
                                        out,
@@ -253,7 +255,7 @@ fn render_structure_item(tera: &Tera, context: &Context, asset_dir: &str, out: &
         let target_file_path = format!("{}/{}/{}",
             out,
             item.item_path.replace(".", "/"),
-            item.item_file);
+            item.item_file.as_ref().unwrap());
 
         match fs::metadata(&target_dir_path) {
              Ok(f) => (),
@@ -269,14 +271,14 @@ fn render_structure_item(tera: &Tera, context: &Context, asset_dir: &str, out: &
         }
         return;
     }
-    let content = match tera.render(&item.item_tmpl, context) {
+    let content = match tera.render(&item.item_tmpl.as_ref().unwrap(), context) {
         Err(why) => panic!("failed to render item: {}", why),
         Ok(content) => content,
     };
     let file_path = item.item_path.replace(".", "/");
     let file_dir = format!("{}/{}", out, &file_path);
     template_installer::prepare_dir(Path::new(&file_dir));
-    let file_name = format!("{}/{}", file_dir, &item.item_file);
+    let file_name = format!("{}/{}", file_dir, &item.item_file.as_ref().unwrap());
     match fs::write(&file_name, &content) {
         Err(why) => panic!("failed to write item: {}", why),
         Ok(_) => println!("[create file]: {}", &file_name),
@@ -320,11 +322,11 @@ fn render_dynamic_structure(
 }
 
 pub fn render_by_template(template_path: &str, build_config: &BuildConfig, output: &str) {
-    let project_structure_items = structure_builder::fetch_project_structure_items(template_path);
+    let project_structure = structure_builder::parse_project_structure(template_path);
     let template_dir = format!("{}/template", template_path);
     let asset_dir = format!("{}/asset", template_path);
-    let tera = tera_builder::build_tera(&template_dir);
-    for item in project_structure_items {
+    let tera = build_tera(&template_dir);
+    for item in project_structure.project_structure {
         if item.is_dynamic() {
             render_dynamic_structure(&tera, &build_config, &asset_dir,output, &item);
         }
