@@ -114,7 +114,7 @@ fn parse_fast_create_args(fast_create_command: &Option<&ArgMatches>) -> Option<F
 
 pub fn parse_command_line_args() -> ParsedArgs {
     let command_line_matches = App::new("luban")
-        .version("0.3.0")
+        .version("0.3.1")
         .author("Wang Wei. <soulww@163.com>")
         .about("This is a generator for java server application write in rust.")
         .arg(
