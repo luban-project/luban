@@ -1,6 +1,6 @@
 [package]
 name = "cargo-luban"
-version = "0.2.9"
+version = "0.3.0"
 authors = ["wang wei <soulww@163.com>"]
 edition = "2018"
 
@@ -19,7 +19,6 @@ serde_derive = "1.0"
 serde_yaml = "0.8"
 clap = "2.32.0"
 tera = "0.11"
-walkdir = "2"
 lazy_static = "1.2.0"
 config = "0.9"
 toml = "0.4"
@@ -30,3 +29,5 @@ case = "1.0.0"
 
 sqlparser = "0.5.0"
 wasmer-runtime = "0.11.0"
+fs_extra = "0.1.0"
+walkdir = "2.2.9"

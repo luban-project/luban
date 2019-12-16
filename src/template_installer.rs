@@ -2,8 +2,13 @@ use fs::File;
 use git2::Repository;
 use std::collections::HashMap;
 use std::fs;
+use std::io;
+use fs::DirEntry;
 use std::path::Path;
 use std::path::PathBuf;
+use fs_extra::dir::copy;
+use fs_extra::dir::CopyOptions;
+use walkdir::WalkDir;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct InstalledRecord {
@@ -21,6 +26,17 @@ pub fn prepare_dir(dir: &Path) {
         match fs::create_dir_all(&dir) {
             Ok(_) => println!("directory: {} created!", &dir.display()),
             Err(why) => panic!("{}", why),
+        }
+    }
+}
+
+pub fn get_template_path() -> PathBuf {
+    match dirs::home_dir() {
+        Some(path) => {
+            return Path::new(&path).join(".bullet_templates");
+        }
+        None => {
+            panic!("could not find the home dir of the user, consider set the env variable HOME")
         }
     }
 }
@@ -160,6 +176,47 @@ pub fn install_template_from_git(name: String, url: String, force: bool) {
         }
         Err(e) => panic!("failed to clone git repository: {}", e),
     }
+}
+
+fn copy_dir(from_dir: &Path, to_dir: &Path) {
+    let mut options = CopyOptions::new(); //Initialize default values for CopyOptions
+    options.overwrite = true;
+    match copy(&from_dir, &to_dir, &options) {
+        Ok(_) => {
+            println!("copy dir {:?} to {} success!", from_dir.to_str(), &to_dir.display());
+        }
+        Err(e) => panic!("failed to copy directory: {}", e),
+    };
+}
+
+fn copy_dir_content(from_dir: &Path, to_dir: &Path) -> io::Result<()> {
+    println!("copy_dir_content: {:?}", &from_dir);
+    println!("{:?}", from_dir.read_dir());
+    for entry in fs::read_dir(from_dir)? {
+        let entry = entry.unwrap().path();
+        if !entry.ends_with(".git") {
+            if entry.is_dir() {
+                copy_dir(&entry, to_dir);
+            } else {
+                fs::copy(entry.as_path(), to_dir);
+            }
+        }
+    }
+    Ok(())
+}
+
+pub fn install_template_from_dir(name: String, dir: String, force: bool) {
+    if name.is_empty() {
+        panic!("install name is empty!")
+    }
+
+    let dir_path = Path::new(dir.as_str());
+    let template_path = gen_template_path(&name);
+    println!("copy from {:?} to {:?}", &dir_path, &template_path);
+    fs::create_dir_all(&template_path);
+    copy_dir_content(&dir_path, &template_path);
+    let template_path_string: String = template_path.to_str().unwrap().to_string();
+    save_install_record(name, String::new(), template_path_string);
 }
 
 pub fn create_build_config_from_installed(name: String) {

@@ -19,6 +19,7 @@ pub enum BuildArg {
 pub struct InstallArg {
     pub name: String,
     pub url: String,
+    pub dir: String,
     pub force: bool,
 }
 
@@ -73,10 +74,12 @@ fn parse_install_args(install_command: &Option<&ArgMatches>) -> Option<InstallAr
         Some(install_command) => {
             let name_arg: String = install_command.value_of("name").unwrap().to_string();
             let url_arg: String = install_command.value_of("url").unwrap().to_string();
+            let dir_arg: String = install_command.value_of("dir").unwrap().to_string();
             let force_arg: bool = install_command.is_present("force");
             return Some(InstallArg {
                 name: name_arg,
                 url: url_arg,
+                dir: dir_arg,
                 force: force_arg,
             });
         }
@@ -111,13 +114,13 @@ fn parse_fast_create_args(fast_create_command: &Option<&ArgMatches>) -> Option<F
 
 pub fn parse_command_line_args() -> ParsedArgs {
     let command_line_matches = App::new("luban")
-        .version("0.2.9")
+        .version("0.3.0")
         .author("Wang Wei. <soulww@163.com>")
         .about("This is a generator for java server application write in rust.")
         .arg(
             Arg::with_name("dummy")
                 .hidden(true)
-                .possible_value("bullet"),
+                .possible_value("luban"),
         )
         .subcommand(
             SubCommand::with_name("build")
@@ -178,6 +181,14 @@ pub fn parse_command_line_args() -> ParsedArgs {
                         .long("url")
                         .short("u")
                         .help("set the git url of the template")
+                        .default_value("")
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("dir")
+                        .long("dir")
+                        .short("d")
+                        .help("set the directory of the template")
                         .default_value("")
                         .takes_value(true),
                 )

@@ -31,11 +31,19 @@ fn main() {
     match command_args.install_arg {
         None => (),
         Some(install_arg) => {
-            template_installer::install_template_from_git(
-                install_arg.name,
-                install_arg.url,
-                install_arg.force,
-            );
+            if install_arg.dir.is_empty() {
+                template_installer::install_template_from_git(
+                    install_arg.name,
+                    install_arg.url,
+                    install_arg.force,
+                );
+            } else {
+                template_installer::install_template_from_dir(
+                    install_arg.name,
+                    install_arg.dir,
+                    install_arg.force,
+                );
+            }
         }
     };
 
